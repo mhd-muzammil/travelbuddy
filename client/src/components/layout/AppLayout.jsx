@@ -3,26 +3,29 @@ import { Link, NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
 function ThemeToggle() {
-  const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
-
-  useEffect(() => {
+  // 1. Initialize state strictly once (No useEffect needed for initial value)
+  const [dark, setDark] = useState(() => {
     const stored = localStorage.getItem("tb_theme");
-    if (stored) {
-      const isDark = stored === "dark";
-      document.documentElement.classList.toggle("dark", isDark);
-      setDark(isDark);
-    } else {
-      // default: system-ish (light), but keep predictable
-      document.documentElement.classList.remove("dark");
-      setDark(false);
+    if (stored !== null) {
+      return stored === "dark";
     }
-  }, []);
+    // Fallback: check if the 'dark' class is already on <html>
+    return document.documentElement.classList.contains("dark");
+  });
+
+  // 2. Sync changes to DOM whenever 'dark' changes
+  useEffect(() => {
+    if (dark) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("tb_theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("tb_theme", "light");
+    }
+  }, [dark]);
 
   function toggle() {
-    const next = !dark;
-    document.documentElement.classList.toggle("dark", next);
-    localStorage.setItem("tb_theme", next ? "dark" : "light");
-    setDark(next);
+    setDark((prev) => !prev);
   }
 
   return (
@@ -30,7 +33,7 @@ function ThemeToggle() {
       onClick={toggle}
       className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200 dark:hover:bg-zinc-900"
     >
-      {dark ? "Dark" : "Light"}
+      {dark ? "🌙 Dark" : "☀️ Light"}
     </button>
   );
 }
