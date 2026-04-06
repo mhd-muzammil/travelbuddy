@@ -5,7 +5,7 @@ import { api, filesBaseUrl } from "../../lib/api.js";
 import { useAuth } from "../../contexts/AuthContext";; // Assuming you have this, or use localStorage
 
 // Connect to your backend URL
-const SOCKET_URL = "http://localhost:5000";
+const SOCKET_URL = import.meta.env.VITE_API_URL;
 
 export function ChatPage() {
   const { userId } = useParams(); // The person we want to chat with
